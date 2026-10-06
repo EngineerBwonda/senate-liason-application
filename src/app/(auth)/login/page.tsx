@@ -113,7 +113,7 @@ export default function LoginForm() {
 
       // Approved → dashboard (admins and regular approved users both land here;
       // the dashboard can then link to /dashboard/users for admins)
-      router.replace("/dashboard");
+      router.replace("/board/dashboard");
     } catch (err) {
       console.error(err);
       setServerError("Something went wrong. Please try again.");

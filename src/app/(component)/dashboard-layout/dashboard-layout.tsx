@@ -93,19 +93,19 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Communications",
     items: [
       {
-        href: "/annual-report",
+        href: "/minutes",
         label: "Minutes",
         icon: FileText,
         attentionId: "minutes",
       },
       {
-        href: "/pageb/incoming-correspondence",
+        href: "/incoming-correspondence",
         label: "Incoming Correspondence",
         icon: Mail,
         attentionId: "incoming-correspondence",
       },
       {
-        href: "/pageb/outgoing-correspondence",
+        href: "/outgoing-correspondence",
         label: "Outgoing Correspondence",
         icon: Send,
         attentionId: "outgoing-correspondence",
@@ -114,7 +114,7 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
       { href: "/feeds", label: "Office Feeds", icon: Rss },
       { href: "/chats", label: "Chats", icon: MessageSquare },
       {
-        href: "/pageb/memo",
+        href: "/memo",
         label: "Memos",
         icon: StickyNote,
         attentionId: "memos",
@@ -140,17 +140,17 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
     label: "Record",
     items: [
       {
-        href: "../pageb/monthly-report",
+        href: "/monthly-report",
         label: "Monthly Reports",
         icon: BarChart3,
       },
       {
-        href: "../pageb/annual-report",
+        href: "/quarterly-report",
         label: "Quarterly Reports",
         icon: BarChart3,
       },
       {
-        href: "../pageb/annual-report",
+        href: "/annual-report",
         label: "Annual Reports",
         icon: BarChart3,
       },
