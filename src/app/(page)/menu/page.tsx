@@ -1,144 +1,151 @@
-"use client";
+import DashboardHome from "../../(component)/dashboard-home/dashboard-home";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import { createClient } from "../../supabase/client";
-import styles from "./styles.module.css";
-
-interface Profile {
-  full_name: string | null;
-  position: string | null;
-  is_approved: boolean | null;
+export default function MenuPage() {
+  return <DashboardHome />;
 }
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const supabase = createClient();
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// "use client";
 
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+// import { useEffect, useState } from "react";
+// import { useRouter } from "next/navigation";
+// import { Loader2 } from "lucide-react";
+// import { createClient } from "../../supabase/client";
+// import styles from "./styles.module.css";
 
-  useEffect(() => {
-    let cancelled = false;
-    let cleanup: (() => void) | undefined;
+// interface Profile {
+//   full_name: string | null;
+//   position: string | null;
+//   is_approved: boolean | null;
+// }
 
-    const handleNotApproved = () => {
-      if (cancelled) return;
-      router.replace("/pending");
-    };
+// export default function DashboardPage() {
+//   const router = useRouter();
+//   const supabase = createClient();
 
-    const init = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+//   const [profile, setProfile] = useState<Profile | null>(null);
+//   const [loading, setLoading] = useState(true);
 
-      if (cancelled) return;
-      if (!user) {
-        router.replace("/login");
-        return;
-      }
+//   useEffect(() => {
+//     let cancelled = false;
+//     let cleanup: (() => void) | undefined;
 
-      const { data, error } = await supabase
-        .from("profilec")
-        .select("full_name, position, is_approved")
-        .eq("id", user.id)
-        .maybeSingle();
+//     const handleNotApproved = () => {
+//       if (cancelled) return;
+//       router.replace("/pending");
+//     };
 
-      if (cancelled) return;
+//     const init = async () => {
+//       const {
+//         data: { user },
+//       } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("profilec lookup failed:", error);
-        setLoading(false);
-        return;
-      }
+//       if (cancelled) return;
+//       if (!user) {
+//         router.replace("/login");
+//         return;
+//       }
 
-      if (!data || !data.is_approved) {
-        handleNotApproved();
-        return;
-      }
+//       const { data, error } = await supabase
+//         .from("profilec")
+//         .select("full_name, position, is_approved")
+//         .eq("id", user.id)
+//         .maybeSingle();
 
-      setProfile(data);
-      setLoading(false);
+//       if (cancelled) return;
 
-      // Live revoke — kick the user back if an admin toggles access off
-      const channel = supabase
-        .channel(`dashboard-guard-${user.id}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "profilec",
-            filter: `id=eq.${user.id}`,
-          },
-          (payload) => {
-            const next = payload.new as { is_approved?: boolean };
-            if (!next.is_approved) {
-              handleNotApproved();
-            }
-          },
-        )
-        .subscribe();
+//       if (error) {
+//         console.error("profilec lookup failed:", error);
+//         setLoading(false);
+//         return;
+//       }
 
-      cleanup = () => {
-        supabase.removeChannel(channel);
-      };
-    };
+//       if (!data || !data.is_approved) {
+//         handleNotApproved();
+//         return;
+//       }
 
-    init();
+//       setProfile(data);
+//       setLoading(false);
 
-    return () => {
-      cancelled = true;
-      if (cleanup) cleanup();
-    };
-  }, [router, supabase]);
+//       // Live revoke — kick the user back if an admin toggles access off
+//       const channel = supabase
+//         .channel(`dashboard-guard-${user.id}`)
+//         .on(
+//           "postgres_changes",
+//           {
+//             event: "UPDATE",
+//             schema: "public",
+//             table: "profilec",
+//             filter: `id=eq.${user.id}`,
+//           },
+//           (payload) => {
+//             const next = payload.new as { is_approved?: boolean };
+//             if (!next.is_approved) {
+//               handleNotApproved();
+//             }
+//           },
+//         )
+//         .subscribe();
 
-  if (loading) {
-    return (
-      <main className={styles.page}>
-        <div className={styles.loadingWrapper}>
-          <Loader2 className={styles.loadingSpinner} size={26} />
-          <p>Loading your dashboard...</p>
-        </div>
-      </main>
-    );
-  }
+//       cleanup = () => {
+//         supabase.removeChannel(channel);
+//       };
+//     };
 
-  const firstName = profile?.full_name?.split(" ")[0] ?? "there";
+//     init();
 
-  return (
-    <main className={styles.page}>
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <span className={styles.eyebrow}>Dashboard</span>
-          <h1 className={styles.title}>
-            Welcome back, <span>{firstName}</span>
-          </h1>
-          <p className={styles.subtitle}>
-            {profile?.position
-              ? `${profile.full_name} · ${profile.position}`
-              : (profile?.full_name ?? "")}
-          </p>
-        </header>
+//     return () => {
+//       cancelled = true;
+//       if (cleanup) cleanup();
+//     };
+//   }, [router, supabase]);
 
-        <section className={styles.cardGrid}>
-          <div className={styles.card}>
-            <span className={styles.cardLabel}>System</span>
-            <strong className={styles.cardValue}>Senate Liaison</strong>
-            <span className={styles.cardMeta}>Office Management System</span>
-          </div>
+//   if (loading) {
+//     return (
+//       <main className={styles.page}>
+//         <div className={styles.loadingWrapper}>
+//           <Loader2 className={styles.loadingSpinner} size={26} />
+//           <p>Loading your dashboard...</p>
+//         </div>
+//       </main>
+//     );
+//   }
 
-          <div className={styles.card}>
-            <span className={styles.cardLabel}>Access</span>
-            <strong className={styles.cardValue}>Active</strong>
-            <span className={styles.cardMeta}>Your account is approved</span>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}
+//   const firstName = profile?.full_name?.split(" ")[0] ?? "there";
+
+//   return (
+//     <main className={styles.page}>
+//       <div className={styles.container}>
+//         <header className={styles.header}>
+//           <span className={styles.eyebrow}>Dashboard</span>
+//           <h1 className={styles.title}>
+//             Welcome back, <span>{firstName}</span>
+//           </h1>
+//           <p className={styles.subtitle}>
+//             {profile?.position
+//               ? `${profile.full_name} · ${profile.position}`
+//               : (profile?.full_name ?? "")}
+//           </p>
+//         </header>
+
+//         <section className={styles.cardGrid}>
+//           <div className={styles.card}>
+//             <span className={styles.cardLabel}>System</span>
+//             <strong className={styles.cardValue}>Senate Liaison</strong>
+//             <span className={styles.cardMeta}>Office Management System</span>
+//           </div>
+
+//           <div className={styles.card}>
+//             <span className={styles.cardLabel}>Access</span>
+//             <strong className={styles.cardValue}>Active</strong>
+//             <span className={styles.cardMeta}>Your account is approved</span>
+//           </div>
+//         </section>
+//       </div>
+//     </main>
+//   );
+// }
 
 // "use client";
 
