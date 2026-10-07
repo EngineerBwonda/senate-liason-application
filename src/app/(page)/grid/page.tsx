@@ -53,6 +53,9 @@ interface StatItem {
   accent: Accent;
   href: string;
   progress?: number;
+  showDocumentCounts?: boolean;
+  totalDocuments?: number | null;
+  unopenedDocuments?: number | null;
   onClick?: () => void;
 }
 
@@ -226,6 +229,9 @@ function StatCard({
   accent,
   href,
   progress,
+  showDocumentCounts,
+  totalDocuments,
+  unopenedDocuments,
   onClick,
 }: StatItem) {
   const prefersReducedMotion = useReducedMotion();
@@ -255,6 +261,31 @@ function StatCard({
 
       <span className={styles.label}>{label}</span>
 
+      {showDocumentCounts && (
+        <span className={styles.documentCounts} aria-live="polite">
+          <span>
+            Total{" "}
+            <strong>
+              {totalDocuments === undefined
+                ? "…"
+                : totalDocuments === null
+                  ? "—"
+                  : totalDocuments}
+            </strong>
+          </span>
+          <span>
+            Unopened{" "}
+            <strong>
+              {unopenedDocuments === undefined
+                ? "…"
+                : unopenedDocuments === null
+                  ? "—"
+                  : unopenedDocuments}
+            </strong>
+          </span>
+        </span>
+      )}
+
       <span className={styles.secondary} data-trend={trendDirection}>
         {TrendIcon && <TrendIcon size={12} strokeWidth={2.5} />}
         {secondary}
@@ -278,8 +309,11 @@ function StatCard({
 
 export default function StatsGrid() {
   const prefersReducedMotion = useReducedMotion();
-  const [attentionCounts, setAttentionCounts] = useState<
-    Record<string, number>
+  const [documentCounts, setDocumentCounts] = useState<
+    Record<string, { total: number; unopened: number }>
+  >({});
+  const [documentCountErrors, setDocumentCountErrors] = useState<
+    Record<string, boolean>
   >({});
 
   useEffect(() => {
@@ -288,25 +322,47 @@ export default function StatsGrid() {
     const loadCount = async ({ id, table, key }: AttentionCardConfig) => {
       const lastOpenedAt = localStorage.getItem(key);
 
-      let query = supabase
+      const totalQuery = supabase
+        .from(table)
+        .select("id", { count: "exact", head: true });
+      let unopenedQuery = supabase
         .from(table)
         .select("id", { count: "exact", head: true });
 
       if (lastOpenedAt) {
-        query = query.gt("created_at", lastOpenedAt);
+        unopenedQuery = unopenedQuery.gt("created_at", lastOpenedAt);
       }
 
-      const { count, error } = await query;
+      const [totalResult, unopenedResult] = await Promise.all([
+        totalQuery,
+        unopenedQuery,
+      ]);
 
-      if (error) {
-        console.error(`Error loading attention count for ${id}:`, error);
+      if (totalResult.error || unopenedResult.error) {
+        if (totalResult.error) {
+          console.error(
+            `Error loading total document count for ${id}:`,
+            totalResult.error,
+          );
+        }
+        if (unopenedResult.error) {
+          console.error(
+            `Error loading unopened document count for ${id}:`,
+            unopenedResult.error,
+          );
+        }
+        setDocumentCountErrors((current) => ({ ...current, [id]: true }));
         return;
       }
 
-      setAttentionCounts((current) => ({
+      setDocumentCounts((current) => ({
         ...current,
-        [id]: count ?? 0,
+        [id]: {
+          total: totalResult.count ?? 0,
+          unopened: unopenedResult.count ?? 0,
+        },
       }));
+      setDocumentCountErrors((current) => ({ ...current, [id]: false }));
     };
 
     ATTENTION_CARDS.forEach((config) => {
@@ -318,21 +374,8 @@ export default function StatsGrid() {
         .channel(`${config.id}-attention-changes`)
         .on(
           "postgres_changes",
-          { event: "INSERT", schema: "public", table: config.table },
-          (payload) => {
-            const lastOpenedAt = localStorage.getItem(config.key);
-            const createdAt = (payload.new as { created_at?: string })
-              .created_at;
-
-            if (!createdAt) return;
-
-            if (!lastOpenedAt || new Date(createdAt) > new Date(lastOpenedAt)) {
-              setAttentionCounts((current) => ({
-                ...current,
-                [config.id]: (current[config.id] ?? 0) + 1,
-              }));
-            }
-          },
+          { event: "*", schema: "public", table: config.table },
+          () => void loadCount(config),
         )
         .subscribe(),
     );
@@ -374,10 +417,15 @@ export default function StatsGrid() {
     window.dispatchEvent(
       new CustomEvent(ATTENTION_LAST_OPENED_EVENT, { detail: { key } }),
     );
-    setAttentionCounts((current) => ({
-      ...current,
-      [id]: 0,
-    }));
+    setDocumentCounts((current) => {
+      const counts = current[id];
+      if (!counts) return current;
+
+      return {
+        ...current,
+        [id]: { ...counts, unopened: 0 },
+      };
+    });
   };
 
   const cards = stats.map((stat) => {
@@ -387,11 +435,16 @@ export default function StatsGrid() {
       return stat;
     }
 
-    const count = attentionCounts[attentionCard.id] ?? 0;
+    const counts = documentCounts[attentionCard.id];
+    const hasCountError = documentCountErrors[attentionCard.id];
+    const count = counts?.unopened ?? 0;
 
     return {
       ...stat,
       value: count,
+      showDocumentCounts: true,
+      totalDocuments: counts?.total ?? (hasCountError ? null : undefined),
+      unopenedDocuments: counts?.unopened ?? (hasCountError ? null : undefined),
       secondary:
         count === 1
           ? `1 ${attentionCard.singular}`
@@ -403,19 +456,19 @@ export default function StatsGrid() {
   });
 
   return (
-    <motion.div
-      className={styles.grid}
-      role="list"
-      aria-label="Dashboard statistics"
-      variants={prefersReducedMotion ? undefined : container}
-      initial={prefersReducedMotion ? undefined : "hidden"}
-      animate={prefersReducedMotion ? undefined : "show"}
-    >
-      {cards.map((stat) => (
-        <div role="listitem" key={stat.id} className={styles.gridItem}>
-          <StatCard {...stat} />
-        </div>
-      ))}
-    </motion.div>
+      <motion.div
+        className={styles.grid}
+        role="list"
+        aria-label="Dashboard statistics"
+        variants={prefersReducedMotion ? undefined : container}
+        initial={prefersReducedMotion ? undefined : "hidden"}
+        animate={prefersReducedMotion ? undefined : "show"}
+      >
+        {cards.map((stat) => (
+          <div role="listitem" key={stat.id} className={styles.gridItem}>
+            <StatCard {...stat} />
+          </div>
+        ))}
+      </motion.div>
   );
 }

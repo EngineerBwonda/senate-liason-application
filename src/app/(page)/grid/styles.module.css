@@ -24,6 +24,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 0.65rem;
   }
+
 }
 
 .card {
@@ -151,6 +152,20 @@
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--ivory-50, #f6f4ef);
+}
+
+.documentCounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.25rem;
+  color: var(--slate-400, #8a97a8);
+  font-size: 0.75rem;
+}
+
+.documentCounts strong {
+  color: var(--ivory-50, #f6f4ef);
+  font-weight: 600;
 }
 
 .secondary {

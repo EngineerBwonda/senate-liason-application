@@ -45,11 +45,11 @@ export default function WelcomeBanner({
           {role} · Senate Liaison Office Management System
         </p>
       </div>
-
+      {/* 
       <Link href={agendaHref} className={styles.cta}>
         View today&rsquo;s agenda
         <ArrowRight size={16} aria-hidden="true" />
-      </Link>
+      </Link> */}
     </section>
   );
 }
