@@ -9,6 +9,7 @@ import {
   ExternalLink,
   FileText,
   LoaderCircle,
+  Pencil,
   RefreshCw,
   Search,
   Trash2,
@@ -16,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import QuarterlyReportsUpload from "../../(modal)/quarterly-reports";
+import EditRecord from "../../(modal)/edit-record";
 import { createClient } from "../../supabase/client";
 import styles from "./styles.module.css";
 
@@ -57,6 +59,8 @@ export default function Page() {
   const [errorMessage, setErrorMessage] = useState("");
   const [notice, setNotice] = useState("");
   const [mutatingId, setMutatingId] = useState<number | null>(null);
+  const [editingRecord, setEditingRecord] =
+    useState<QuarterlyReportRecord | null>(null);
 
   const loadRecords = useCallback(async () => {
     setLoading(true);
@@ -577,6 +581,19 @@ export default function Page() {
 
                         {(isAdmin || record.user_id === currentUserId) && (
                           <button
+                            className={styles.rowAction}
+                            type="button"
+                            disabled={mutatingId === record.id}
+                            onClick={() => setEditingRecord(record)}
+                            aria-label={`Update ${record.title}`}
+                          >
+                            <Pencil size={14} aria-hidden="true" />
+                            Update
+                          </button>
+                        )}
+
+                        {(isAdmin || record.user_id === currentUserId) && (
+                          <button
                             className={`${styles.rowAction} ${styles.deleteAction}`}
                             type="button"
                             disabled={mutatingId === record.id}
@@ -624,6 +641,19 @@ export default function Page() {
         <QuarterlyReportsUpload
           onClose={closeUpload}
           onUploaded={handleUploaded}
+        />
+      )}
+
+      {editingRecord && (
+        <EditRecord
+          table="quarterly_reports"
+          record={editingRecord}
+          recordType="quarterly report"
+          onClose={() => setEditingRecord(null)}
+          onUpdated={async () => {
+            setNotice("Quarterly report updated successfully.");
+            await loadRecords();
+          }}
         />
       )}
 

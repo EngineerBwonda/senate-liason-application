@@ -65,7 +65,7 @@ const stats: StatItem[] = [
     secondary: "receive and share minutes from other offices",
     trendDirection: "up",
     accent: "blue",
-    href: "../../pageb/minutes",
+    href: "/minutes",
   },
   {
     id: "incoming-correspondence",
@@ -75,7 +75,7 @@ const stats: StatItem[] = [
     secondary: "receive correspondence from other offices",
     trendDirection: "neutral",
     accent: "green",
-    href: "/pageb/incoming-correspondence",
+    href: "/incoming-correspondence",
   },
   {
     id: "outgoing-correspondence",
@@ -85,7 +85,7 @@ const stats: StatItem[] = [
     secondary: "send correspondence to other offices",
     trendDirection: "neutral",
     accent: "purple",
-    href: "/pageb/outgoing-correspondence",
+    href: "/outgoing-correspondence",
     progress: 62,
   },
   {
@@ -96,7 +96,7 @@ const stats: StatItem[] = [
     secondary: "Next at 2:00 PM",
     trendDirection: "neutral",
     accent: "orange",
-    href: "/pageb/monthly-report",
+    href: "/monthly-report",
   },
   {
     id: "annual-reports",
@@ -106,7 +106,7 @@ const stats: StatItem[] = [
     secondary: "Next at 2:00 PM",
     trendDirection: "neutral",
     accent: "orange",
-    href: "/pageb/annual-report",
+    href: "/annual-report",
   },
   {
     id: "quarterly-reports",
@@ -116,7 +116,7 @@ const stats: StatItem[] = [
     secondary: "Next at 2:00 PM",
     trendDirection: "neutral",
     accent: "orange",
-    href: "/pageb/quarterly-report",
+    href: "/quarterly-report",
   },
   {
     id: "chats",
@@ -126,7 +126,7 @@ const stats: StatItem[] = [
     secondary: "Team conversation and active threads",
     trendDirection: "up",
     accent: "cyan",
-    href: "/pageb/recent-messages",
+    href: "/recent-messages",
   },
   {
     id: "calendar",
@@ -146,7 +146,7 @@ const stats: StatItem[] = [
     secondary: "receive and share memos from other offices",
     trendDirection: "down",
     accent: "amber",
-    href: "/pageb/memo",
+    href: "/memo",
   },
   {
     id: "feed",

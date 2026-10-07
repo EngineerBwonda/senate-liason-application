@@ -41,7 +41,8 @@ import {
   ATTENTION_LAST_OPENED_EVENT,
 } from "../../(component)/recent-messages/attention-data";
 import { createClient } from "../../supabase/client";
-import styles from "../../board/dashboard/styles.module.css";
+// import styles from "../../board/dashboard/styles.module.css";
+import styles from "./styles.module.css";
 
 const display = Fraunces({
   subsets: ["latin"],

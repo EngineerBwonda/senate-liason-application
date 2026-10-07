@@ -709,6 +709,45 @@
   animation: modalIn 0.2s ease-out;
 }
 
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 0.95rem;
+}
+
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--slate-400, #8a97a8);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.editField input,
+.editField textarea {
+  width: 100%;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 6px;
+  outline: 0;
+  background: rgba(0, 0, 0, 0.1);
+  color: var(--ivory-50, #f6f4ef);
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.editField input:focus,
+.editField textarea:focus {
+  border-color: var(--gold-500, #c9a961);
+}
+
+.editField textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
 .previewModal {
   display: flex;
   width: min(100%, 1100px);

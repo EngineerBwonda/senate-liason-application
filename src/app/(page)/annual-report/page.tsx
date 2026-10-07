@@ -8,6 +8,7 @@ import {
   ExternalLink,
   FileText,
   LoaderCircle,
+  Pencil,
   RefreshCw,
   Search,
   Trash2,
@@ -15,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import AnnualReportUpload from "../../(modal)/annual-report";
+import EditRecord from "../../(modal)/edit-record";
 import { createClient } from "../../supabase/client";
 import styles from "./styles.module.css";
 
@@ -54,6 +56,8 @@ export default function Page() {
   const [errorMessage, setErrorMessage] = useState("");
   const [notice, setNotice] = useState("");
   const [mutatingId, setMutatingId] = useState<number | null>(null);
+  const [editingRecord, setEditingRecord] =
+    useState<MinuteRecord | null>(null);
 
   const loadMinutes = useCallback(async () => {
     setLoading(true);
@@ -491,6 +495,20 @@ export default function Page() {
                             />
                           </label>
                         )}
+
+                        {(isAdmin || record.user_id === currentUserId) && (
+                          <button
+                            className={styles.rowAction}
+                            type="button"
+                            disabled={mutatingId === record.id}
+                            onClick={() => setEditingRecord(record)}
+                            aria-label={`Update ${record.title}`}
+                          >
+                            <Pencil size={14} aria-hidden="true" />
+                            Update
+                          </button>
+                        )}
+
                         {(isAdmin || record.user_id === currentUserId) && (
                           <button
                             className={`${styles.rowAction} ${styles.deleteAction}`}
@@ -535,6 +553,18 @@ export default function Page() {
       </p>
       {uploadOpen && (
         <AnnualReportUpload onClose={closeUpload} onUploaded={handleUploaded} />
+      )}
+      {editingRecord && (
+        <EditRecord
+          table="annual_report"
+          record={editingRecord}
+          recordType="annual report"
+          onClose={() => setEditingRecord(null)}
+          onUpdated={async () => {
+            setNotice("Annual report updated successfully.");
+            await loadMinutes();
+          }}
+        />
       )}
       {previewMinute && (
         <div
