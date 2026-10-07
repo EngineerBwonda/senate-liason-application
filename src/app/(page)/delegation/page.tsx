@@ -127,7 +127,7 @@ const delegationItems: QuickAccessItem[] = [
     pillLabel: "1 Upcoming",
     pillTone: "info",
     accent: "teal",
-    href: "../pages/schools",
+    href: "/schools",
   },
   {
     id: "organised-groups",
@@ -177,7 +177,7 @@ const delegationItems: QuickAccessItem[] = [
     pillLabel: "4 Active",
     pillTone: "info",
     accent: "cyan",
-    href: "../pages/internship",
+    href: "/intern",
   },
   {
     id: "attachment",
@@ -187,7 +187,7 @@ const delegationItems: QuickAccessItem[] = [
     pillLabel: "2 Active",
     pillTone: "info",
     accent: "pink",
-    href: "../pages/attachment",
+    href: "/attachee",
   },
   {
     id: "volunteers",
