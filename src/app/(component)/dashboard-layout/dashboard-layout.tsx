@@ -34,6 +34,7 @@ import {
   LogOut,
   Send,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import OnlineUsers from "../online-users/page";
 import RecentMessages from "../recent-messages/recent-messages";
 import {
@@ -480,8 +481,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 }
 
 function ProfileMenu() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [profileName, setProfileName] = useState("User");
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -531,6 +535,31 @@ function ProfileMenu() {
     .join("")
     .toUpperCase();
 
+  const handleSignOut = async () => {
+    if (signingOut) return;
+
+    setSigningOut(true);
+    setSignOutError("");
+
+    try {
+      const { error } = await createClient().auth.signOut({ scope: "local" });
+      if (error) {
+        console.error("Could not sign out:", error);
+        setSignOutError("Could not log out. Please try again.");
+        return;
+      }
+
+      setOpen(false);
+      router.replace("/login");
+      router.refresh();
+    } catch (error) {
+      console.error("Could not sign out:", error);
+      setSignOutError("Could not log out. Please try again.");
+    } finally {
+      setSigningOut(false);
+    }
+  };
+
   useEffect(() => {
     if (!open) return;
     const handleClick = (e: MouseEvent) => {
@@ -570,6 +599,11 @@ function ProfileMenu() {
 
       {open && (
         <div className={styles.profileDropdown} role="menu">
+          {signOutError && (
+            <p className={styles.profileMenuError} role="alert">
+              {signOutError}
+            </p>
+          )}
           <Link
             href="/profile"
             className={styles.profileDropdownItem}
@@ -583,13 +617,11 @@ function ProfileMenu() {
             type="button"
             className={`${styles.profileDropdownItem} ${styles.profileDropdownDanger}`}
             role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              // TODO: wire to Supabase signOut
-            }}
+            onClick={() => void handleSignOut()}
+            disabled={signingOut}
           >
             <LogOut size={16} aria-hidden="true" />
-            Log out
+            {signingOut ? "Logging out…" : "Log out"}
           </button>
         </div>
       )}

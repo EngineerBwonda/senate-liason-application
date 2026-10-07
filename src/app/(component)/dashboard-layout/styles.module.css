@@ -318,6 +318,8 @@
 }
 
 .topBar {
+  position: relative;
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -439,7 +441,14 @@
   border-radius: 10px;
   box-shadow: var(--shadow-pop);
   padding: 0.4rem;
-  z-index: 40;
+  z-index: 60;
+}
+
+.profileMenuError {
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  color: var(--red-500);
+  font-size: 0.75rem;
 }
 
 .profileDropdownItem {
@@ -460,6 +469,11 @@
 
 .profileDropdownItem:hover {
   background-color: var(--hover-bg);
+}
+
+.profileDropdownItem:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 .profileDropdownDanger {
